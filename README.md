@@ -115,3 +115,35 @@ Open `src/flyerConfig.json` and adjust the layout values to match your new templ
     * `style`: The font style (e.g., `"bold"` or `""` for regular).
     * `size`: Font size in pixels.
     * `y`: The Y coordinate where this specific line of text is drawn.
+
+---
+
+### Developer Cheat Sheet (For Next Year)
+
+If you are updating this project for the first time, follow these steps to calculate and verify the coordinates for the new layout:
+
+#### 1. How to measure pixel coordinates:
+* Open the new design template in a design tool like **Figma**, **Photoshop**, or **Canva**.
+* Set your design workspace zoom to 100% and ensure the ruler coordinate system starts at the top-left corner `(0, 0)` of the image.
+* **Profile Picture**: Inspect the circular profile shape. The center of the circle is your `{ x, y }` coordinates, and half of the diameter is the `radius` (e.g., `415`).
+* **Text Offsets**: Hover your cursor over the top-left edge of the first character space in the text field box to read the `left` alignment margin coordinate. Place your cursor on the top edge of each line's bounding box to read the respective `y` values.
+
+#### 2. How to swap fonts:
+* Place your new font file (e.g., `New-Font.ttf` or `New-Font.woff2`) inside the `public/` directory.
+* Open `src/App.jsx` and update the `FontFace` load statement:
+  ```javascript
+  const font = new FontFace(flyerConfig.text.fontName, 'url(./New-Font.ttf)');
+  ```
+* Change the `"fontName"` field inside `src/flyerConfig.json` to match.
+
+#### 3. How to verify and deploy:
+1. Start the hot-reloading dev server:
+   ```bash
+   npm run dev
+   ```
+2. Upload a test photo, fill in details, and make sure the layout matches the template perfectly.
+3. Build and deploy to your hosting destination (e.g., GitHub Pages or Vercel):
+   ```bash
+   npm run build
+   npm run deploy
+   ```
