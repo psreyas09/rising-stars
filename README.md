@@ -99,7 +99,12 @@ Open `src/flyerConfig.json` and adjust the layout values to match your new templ
   * `size`: The resolution width/height of the template image in pixels (e.g., `3000` for a `3000x3000px` canvas).
 * **`pfp`**:
   * `center`: The exact `{ x, y }` pixel coordinates of the center of your template's profile picture frame.
-  * `radius`: The clipping radius in pixels (e.g., `415`). The image will be cropped to this circle and a white border outline will automatically be drawn around it.
+  * `radius`: The clipping radius in pixels (e.g., `415`). The image will be cropped to this circle.
+  * `borderWidth`: The width of the white border outline to draw in pixels (set to `0` or remove if the template already has a border).
+  * `borderColor`: The hex color of the border outline (e.g., `"#ffffff"`).
+  * `maskMode`: Controls how the profile picture circular space is processed:
+    * `"transparent"`: Choose this if next year's template is saved as a transparent PNG with the profile circle already erased (Recommended).
+    * `"detect-purple-tag"`: Runs pixel-level color scanning to keep only the purple details tag elements inside the circle (used for this year's 2026 design template).
 * **`text`**:
   * `fontName`: The name of the loaded custom font family.
   * `align`: Horizontal text alignment (`"left"`, `"center"`, or `"right"`).
