@@ -36,6 +36,13 @@ export default function App() {
     const img = new Image();
     img.src = templateSrc;
     img.onload = () => {
+      // If template is already transparent, we can skip pixel processing
+      if (flyerConfig.pfp.maskMode === 'transparent') {
+        templateImgRef.current = img;
+        setTemplateLoaded(true);
+        return;
+      }
+
       // Create an offscreen canvas to process the template pixels
       const offscreenCanvas = document.createElement('canvas');
       offscreenCanvas.width = canvasSize;
@@ -69,12 +76,13 @@ export default function App() {
               const g = data[idx + 1];
               const b = data[idx + 2];
  
-              // We want to preserve ONLY the purple tag overlay and make the rest of the circle transparent.
-              // In the purple tag, Blue is dominant (b > g * 2 && b > 50 && r < 100).
-              // For both the light-blue placeholder and the green waves, this is false.
-              const isPurpleTag = (b > g * 2 && b > 50 && r < 100);
-              if (!isPurpleTag) {
-                data[idx + 3] = 0; // Make pixel completely transparent
+              if (flyerConfig.pfp.maskMode === 'detect-purple-tag') {
+                // We want to preserve ONLY the purple tag overlay and make the rest of the circle transparent.
+                // In the purple tag, Blue is dominant (b > g * 2 && b > 50 && r < 100).
+                const isPurpleTag = (b > g * 2 && b > 50 && r < 100);
+                if (!isPurpleTag) {
+                  data[idx + 3] = 0; // Make pixel completely transparent
+                }
               }
             }
           }

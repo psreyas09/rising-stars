@@ -8,7 +8,10 @@
       "x": 824,
       "y": 1524
     },
-    "radius": 415
+    "radius": 415,
+    "borderWidth": 14,
+    "borderColor": "#ffffff",
+    "maskMode": "detect-purple-tag"
   },
   "text": {
     "fontName": "OutfitFont",
