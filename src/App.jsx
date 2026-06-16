@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Download, ZoomIn, Move, RefreshCw, Sparkles, Check, AlertCircle } from 'lucide-react';
+import flyerConfig from './flyerConfig.json';
 
 export default function App() {
   // Input fields state
@@ -26,16 +27,14 @@ export default function App() {
   const templateImgRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Template details
-  const canvasSize = 3000;
-  const pfpCenter = { x: 824, y: 1524 };
-  const pfpRadius = 415;
-  const textCenter = 1067;
-
+  // Template details from configuration file
+  const { size: canvasSize, src: templateSrc } = flyerConfig.template;
+  const { center: pfpCenter, radius: pfpRadius } = flyerConfig.pfp;
+ 
   // Load template image and process transparency in the circle area
   useEffect(() => {
     const img = new Image();
-    img.src = './temp.png';
+    img.src = templateSrc;
     img.onload = () => {
       // Create an offscreen canvas to process the template pixels
       const offscreenCanvas = document.createElement('canvas');
@@ -43,33 +42,33 @@ export default function App() {
       offscreenCanvas.height = canvasSize;
       const ctx = offscreenCanvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
-
+ 
       // Read image data to mask out the light-blue placeholder circle
       try {
         const imgData = ctx.getImageData(0, 0, canvasSize, canvasSize);
         const data = imgData.data;
-
+ 
         // Loop through the circle bounding box with a small safety margin
         const startX = Math.floor(pfpCenter.x - pfpRadius - 10);
         const endX = Math.ceil(pfpCenter.x + pfpRadius + 10);
         const startY = Math.floor(pfpCenter.y - pfpRadius - 10);
         const endY = Math.ceil(pfpCenter.y + pfpRadius + 10);
-
+ 
         for (let y = startY; y < endY; y++) {
           for (let x = startX; x < endX; x++) {
             if (x < 0 || x >= canvasSize || y < 0 || y >= canvasSize) continue;
-
+ 
             const dx = x - pfpCenter.x;
             const dy = y - pfpCenter.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-
+ 
             // If the pixel is strictly inside the circle placeholder radius
             if (dist < pfpRadius) {
               const idx = (y * canvasSize + x) * 4;
               const r = data[idx];
               const g = data[idx + 1];
               const b = data[idx + 2];
-
+ 
               // We want to preserve ONLY the purple tag overlay and make the rest of the circle transparent.
               // In the purple tag, Blue is dominant (b > g * 2 && b > 50 && r < 100).
               // For both the light-blue placeholder and the green waves, this is false.
@@ -89,20 +88,20 @@ export default function App() {
       setTemplateLoaded(true);
     };
     img.onerror = () => {
-      console.error("Failed to load template image (temp.png)");
+      console.error(`Failed to load template image (${templateSrc})`);
     };
   }, []);
-
+ 
   // Load custom font dynamically
   useEffect(() => {
     const loadFont = async () => {
       try {
-        const font = new FontFace('OutfitFont', 'url(./Outfit-Variable.ttf)');
+        const font = new FontFace(flyerConfig.text.fontName, 'url(./Outfit-Variable.ttf)');
         await font.load();
         document.fonts.add(font);
         setFontLoaded(true);
       } catch (err) {
-        console.error("Failed to load custom Outfit font, falling back to system fonts:", err);
+        console.error(`Failed to load custom ${flyerConfig.text.fontName} font, falling back to system fonts:`, err);
         setFontLoaded(true);
       }
     };
@@ -194,27 +193,25 @@ export default function App() {
       ctx.fillRect(0, 0, canvasSize, canvasSize);
     }
 
-    // 4. Draw Custom Text Fields on Purple Tag (Left-Aligned, Positioned Left, Larger Fonts)
-    const fontName = fontLoaded ? 'OutfitFont' : 'system-ui, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillStyle = '#ffffff';
+    // 4. Draw Custom Text Fields on Purple Tag (configured via flyerConfig.json)
+    const fontName = fontLoaded ? flyerConfig.text.fontName : 'system-ui, sans-serif';
+    ctx.textAlign = flyerConfig.text.align || 'left';
+    ctx.textBaseline = flyerConfig.text.baseline || 'top';
+    ctx.fillStyle = flyerConfig.text.color || '#ffffff';
 
-    const textLeft = 600; // Left-aligned, with a safe margin from the tag border
+    const textLeft = flyerConfig.text.left;
 
-    // Line 1: Name (Bold, Y=1940, Size=105px)
-    ctx.font = `bold 105px ${fontName}`;
-    ctx.fillText(name.trim(), textLeft, 1940);
+    flyerConfig.text.fields.forEach(field => {
+      let fieldValue = '';
+      if (field.id === 'name') fieldValue = name;
+      else if (field.id === 'position') fieldValue = position;
+      else if (field.id === 'optional') fieldValue = optional;
 
-    // Line 2: Position (Regular/Medium, Y=2065, Size=65px)
-    ctx.font = `65px ${fontName}`;
-    ctx.fillText(position.trim(), textLeft, 2065);
-
-    // Line 3: Optional Line (Regular, Y=2155, Size=52px)
-    if (optional.trim()) {
-      ctx.font = `52px ${fontName}`;
-      ctx.fillText(optional.trim(), textLeft, 2155);
-    }
+      if (fieldValue.trim()) {
+        ctx.font = `${field.style ? field.style + ' ' : ''}${field.size}px ${fontName}`;
+        ctx.fillText(fieldValue.trim(), textLeft, field.y);
+      }
+    });
   };
 
   // Re-draw canvas whenever variables change
@@ -478,8 +475,42 @@ export default function App() {
                   />
                 </div>
 
+                {/* Horizontal Position slider */}
+                <div className="slider-container" style={{ marginTop: '10px' }}>
+                  <div className="slider-header">
+                    <span>Horizontal Position (X)</span>
+                    <span>{Math.round(offset.x)}px</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="-1000" 
+                    max="1000" 
+                    step="5" 
+                    value={Math.round(offset.x)} 
+                    onChange={(e) => setOffset(prev => ({ ...prev, x: parseFloat(e.target.value) }))}
+                    className="custom-slider"
+                  />
+                </div>
+
+                {/* Vertical Position slider */}
+                <div className="slider-container" style={{ marginTop: '10px' }}>
+                  <div className="slider-header">
+                    <span>Vertical Position (Y)</span>
+                    <span>{Math.round(offset.y)}px</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="-1000" 
+                    max="1000" 
+                    step="5" 
+                    value={Math.round(offset.y)} 
+                    onChange={(e) => setOffset(prev => ({ ...prev, y: parseFloat(e.target.value) }))}
+                    className="custom-slider"
+                  />
+                </div>
+
                 {/* Reset button */}
-                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
                   <button onClick={handleReset} className="btn-secondary" style={{ padding: '10px 16px', fontSize: '0.85rem', width: '100%', borderRadius: 'var(--radius-md)' }}>
                     <RefreshCw size={14} style={{ marginRight: '6px' }} />
                     Reset Image Alignment

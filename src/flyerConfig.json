@@ -1,0 +1,40 @@
+{
+  "template": {
+    "src": "./temp.png",
+    "size": 3000
+  },
+  "pfp": {
+    "center": {
+      "x": 824,
+      "y": 1524
+    },
+    "radius": 415
+  },
+  "text": {
+    "fontName": "OutfitFont",
+    "align": "left",
+    "baseline": "top",
+    "color": "#ffffff",
+    "left": 600,
+    "fields": [
+      {
+        "id": "name",
+        "style": "bold",
+        "size": 105,
+        "y": 1940
+      },
+      {
+        "id": "position",
+        "style": "",
+        "size": 65,
+        "y": 2065
+      },
+      {
+        "id": "optional",
+        "style": "",
+        "size": 52,
+        "y": 2155
+      }
+    ]
+  }
+}
