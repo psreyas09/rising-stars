@@ -1,0 +1,43 @@
+{
+  "template": {
+    "src": "./temp_v2.png",
+    "size": 3000
+  },
+  "pfp": {
+    "center": {
+      "x": 1500,
+      "y": 1000
+    },
+    "radius": 450,
+    "borderWidth": 0,
+    "borderColor": "#ffffff",
+    "maskMode": "detect-purple-tag"
+  },
+  "text": {
+    "fontName": "OutfitFont",
+    "align": "left",
+    "baseline": "top",
+    "color": "#ffffff",
+    "left": 500,
+    "fields": [
+      {
+        "id": "name",
+        "style": "bold",
+        "size": 95,
+        "y": 1870
+      },
+      {
+        "id": "position",
+        "style": "",
+        "size": 60,
+        "y": 2000
+      },
+      {
+        "id": "optional",
+        "style": "",
+        "size": 48,
+        "y": 2090
+      }
+    ]
+  }
+}
