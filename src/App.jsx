@@ -371,7 +371,7 @@ export default function App() {
         {/* Left Side: Control Panel (Form Inputs & Photo Adjustments) */}
         <section className="glass-panel" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '6px' }} className="title-gradient">Create Your Flyer</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '6px', color: '#ffffff' }}>Create Your Flyer</h2>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Fill in your details and upload a photo to customize your badge.</p>
           </div>
 
